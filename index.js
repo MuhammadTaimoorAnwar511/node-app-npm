@@ -12,7 +12,7 @@ app.use(express.json());         // if you want JSON body parsing
 
 // a simple route
 app.get('/', (req, res) => {
-  res.send(`Hello! Server is running on port ${PORT}`);
+  res.send(`🚀 Listening on port ${PORT}`);
 });
 
 // start server
