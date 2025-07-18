@@ -6,12 +6,10 @@ on:
       - main
 env:
   # === Change only these values ===
-  BRANCH_NAME: "main"
-  RUNNER_NAME: "taimoor-vm"
   PROCESS_NAME: "Node-npm"
   PACKAGE_MANAGER: "npm"         # or "yarn"
   NODE_VERSION: "20"
-
+  # === Change only these values ===
 jobs:
   deploy:    
     runs-on: [self-hosted,taimoor-vm] 
