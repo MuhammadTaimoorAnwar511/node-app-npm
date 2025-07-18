@@ -22,23 +22,31 @@ jobs:
         with:
           clean: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      
-      - name: Ensure yarn, pm2, and serve are installed
+      - name: Ensure Node.js ${{ env.NODE_VERSION }} and global tools are installed
         run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+          # Install Node.js version if not present
+          if ! nvm ls | grep -q "v${{ env.NODE_VERSION }}"; then
+            echo "Installing Node.js v${{ env.NODE_VERSION }}..."
+            nvm install ${{ env.NODE_VERSION }}
+          fi
+          nvm use ${{ env.NODE_VERSION }}
+
+          # Install yarn if missing
           if ! command -v yarn &> /dev/null; then
             echo "Installing yarn..."
             npm install -g yarn
           fi
-      
+
+          # Install pm2 if missing
           if ! command -v pm2 &> /dev/null; then
             echo "Installing pm2..."
             npm install -g pm2
           fi
-      
+
+          # Install serve if missing
           if ! command -v serve &> /dev/null; then
             echo "Installing serve..."
             npm install -g serve
