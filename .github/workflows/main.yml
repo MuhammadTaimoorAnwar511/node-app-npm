@@ -45,12 +45,6 @@ jobs:
             npm install -g pm2
           fi
       
-          # Install serve if missing
-          if ! command -v serve &> /dev/null; then
-            echo "Installing serve..."
-            npm install -g serve
-          fi
-
       - name: Install dependencies
         run: |
           if [ "${{ env.PACKAGE_MANAGER }}" = "yarn" ]; then
