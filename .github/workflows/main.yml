@@ -1,0 +1,67 @@
+name: Deploying main Branch
+
+on:
+  push:
+    branches:
+      - main
+env:
+  # === Change only these values ===
+  BRANCH_NAME: "main"
+  RUNNER_NAME: "taimoor-vm"
+  PROCESS_NAME: "Node-npm"
+  PACKAGE_MANAGER: "npm"         # or "yarn"
+  NODE_VERSION: "20"
+
+jobs:
+  deploy:    
+    runs-on: [self-hosted,taimoor-vm] 
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          clean: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Ensure yarn, pm2, and serve are installed
+        run: |
+          if ! command -v yarn &> /dev/null; then
+            echo "Installing yarn..."
+            npm install -g yarn
+          fi
+      
+          if ! command -v pm2 &> /dev/null; then
+            echo "Installing pm2..."
+            npm install -g pm2
+          fi
+      
+          if ! command -v serve &> /dev/null; then
+            echo "Installing serve..."
+            npm install -g serve
+          fi
+
+      - name: Install dependencies
+        run: |
+          if [ "${{ env.PACKAGE_MANAGER }}" = "yarn" ]; then
+            yarn install --ignore-engines
+          else
+            npm install --legacy-peer-deps
+          fi
+
+      - name: Start or Reload Application with PM2
+        run: |
+          if pm2 list | grep -q "${{ env.PROCESS_NAME }}"; then
+            echo "Reloading PM2 process: ${{ env.PROCESS_NAME }}"
+            pm2 reload "${{ env.PROCESS_NAME }}"
+          else
+            echo "Starting new PM2 process: ${{ env.PROCESS_NAME }}"
+            if [ "${{ env.PACKAGE_MANAGER }}" = "yarn" ]; then
+              pm2 start "yarn start" --name "${{ env.PROCESS_NAME }}"
+            else
+              pm2 start "npm start" --name "${{ env.PROCESS_NAME }}"
+            fi
+          fi
